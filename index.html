@@ -15,6 +15,11 @@
 @media print{body{background:#fff}.topActions,.controls,.add,.delete,.tools,.sideNote,.footer,.toast,.day{display:none!important}.wrap{max-width:100%;padding:0}.layout{display:block}.side{display:none}.slot{break-inside:avoid}.kpis{margin-top:12px}.panel{border:none;box-shadow:none}.kpi{box-shadow:none}.slot{padding:8px}.ratio{margin:10px 0}.timeline{padding:0}}
 
 /* Google synchronization + compact activity editor */
+.cloud-state{font-size:12px;line-height:1.5;color:var(--muted);margin-top:8px;white-space:pre-line;overflow-wrap:anywhere}
+.cloud-state.good{color:var(--health)}.cloud-state.error{color:#AB4E43}
+.cloud-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
+.cloud-tools .btn:disabled{opacity:.45;cursor:not-allowed}
+
 .sync-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .sync-light{width:8px;height:8px;background:#B7BEC8;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
 .sync-light.on{background:var(--health)}
@@ -97,7 +102,14 @@
           <p class="small-note"><a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Ouvrir Google Cloud Console ↗</a></p>
         </details>
       </div></section>
-      <section class="panel"><div class="inner"><h2 class="panel-title">Mes données</h2><p class="sideNote">Vos activités sont enregistrées dans ce navigateur. Google ne reçoit que les éléments que vous classez comme « Tâche » ou « Agenda », après autorisation.</p><div class="tools"><button class="btn small" id="backupBtn" type="button">Exporter mes données</button><button class="btn small" id="importBtn" type="button">Restaurer</button><button class="btn small" id="icsBtn" type="button">Exporter la journée (.ics)</button></div><input type="file" id="importFile" class="visuallyHidden" accept="application/json,.json"><p class="tip" style="margin:14px 0 0"><strong>À savoir :</strong> les données locales de 3 × 8 ne sont pas encore synchronisées entre appareils. Exportez régulièrement vos données. L'export .ics est indépendant de la liaison Google.</p></div></section>
+      <section class="panel"><div class="inner">
+        <div class="sync-head"><h2 class="panel-title">Mes données sur tous mes appareils</h2><span class="sync-meta"><span class="sync-light" id="cloudLight"></span><span id="cloudLabel">En attente</span></span></div>
+        <p class="panel-sub">Sauvegarde automatique privée sur Google Drive, avec fusion des activités et intentions entre appareils. 3 × 8 reste l’interface maîtresse.</p>
+        <div class="cloud-state" id="cloudMessage" role="status" aria-live="polite">Connectez Google pour activer la sauvegarde privée.</div>
+        <div class="cloud-tools"><button class="btn small" id="cloudRefresh" type="button" disabled>Actualiser depuis Drive</button><button class="btn small" id="cloudSave" type="button" disabled>Sauvegarder sur Drive</button></div>
+        <p class="small-note" style="margin-top:11px">Les changements sont transmis lorsque cette page est ouverte et que Google est connecté. Une autre session récupère les nouveautés à l’ouverture, au retour sur l’onglet ou périodiquement. Les données restent aussi conservées localement.</p>
+      </div></section>
+      <section class="panel"><div class="inner"><h2 class="panel-title">Mes données</h2><p class="sideNote">Vos données restent dans ce navigateur et, après autorisation, une copie privée est sauvegardée sur Google Drive. Seules les activités « Tâche » ou « Agenda » sont publiées dans ces deux services.</p><div class="tools"><button class="btn small" id="backupBtn" type="button">Exporter mes données</button><button class="btn small" id="importBtn" type="button">Restaurer</button><button class="btn small" id="icsBtn" type="button">Exporter la journée (.ics)</button></div><input type="file" id="importFile" class="visuallyHidden" accept="application/json,.json"><p class="tip" style="margin:14px 0 0"><strong>À savoir :</strong> Gardez une sauvegarde JSON de secours. Drive utilise un dossier applicatif invisible dans votre Drive habituel. L'export .ics est indépendant de la connexion Google.</p></div></section>
       <section class="panel"><div class="inner"><h2 class="panel-title">Le principe</h2><div class="quote">Ce planning est un repère, pas un examen. Un moment laissé libre peut être une très bonne décision.</div><p class="tip" style="margin-bottom:0;margin-top:11px">Le sommeil prévu est de 6 h. Vous pourrez faire évoluer cette grille si vous décidez d'allonger vos nuits.</p></div></section>
     </aside>
   </div>
@@ -110,7 +122,11 @@
 const KEY='ma_journee_3x8_v1';
 const CFG_KEY='ma_journee_3x8_google_v2';
 const TIMEZONE='Africa/Tunis';
-const SCOPES='https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/tasks';
+const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.appdata';
+const SCOPES='https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/tasks '+DRIVE_SCOPE;
+const DRIVE_PREFIX='3x8-prive-appareil-';
+const DRIVE_BASE='https://www.googleapis.com/drive/v3/files';
+const DRIVE_UPLOAD='https://www.googleapis.com/upload/drive/v3/files';
 const START=[
  ['06:00','07:00','health','Petit déjeuner · Activité physique · Méditation',false],
  ['07:00','09:00','mind','',true],
@@ -139,11 +155,39 @@ const isHttpsOrigin=()=>location.protocol==='https:'||(location.protocol==='http
 const el=(tag,cls,txt)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(txt!==undefined)node.textContent=txt;return node};
 let selected=localISO(new Date()),data={days:{},sync:{links:{},pendingDeletes:[]}},config={clientId:'',autoSync:false,taskListId:''};
 let oauthClient=null, accessToken='',tokenExpires=0, syncBusy=false, resyncNeeded=false, autoTimer,saveTimer,noticeTimer,warnOnce=false;
+let cloudReady=false,cloudBusy=false,cloudDirty=false,cloudFileId='',cloudHasGrant=false,cloudTimer=null,cloudPollTimer=null,lastCloudPull=0,lastStamp=0;
 try {const obj=JSON.parse(localStorage.getItem(KEY)||'null');if(obj&&obj.days&&typeof obj.days==='object')data=obj;}catch(e){console.warn('Enregistrement local illisible',e)}
 try {const obj=JSON.parse(localStorage.getItem(CFG_KEY)||'null');if(obj&&typeof obj==='object')config={...config,...obj};}catch(e){console.warn('Paramètres illisibles',e)}
 if(!data.sync||typeof data.sync!=='object')data.sync={links:{},pendingDeletes:[]};
 if(!data.sync.links)data.sync.links={};
 if(!Array.isArray(data.sync.pendingDeletes))data.sync.pendingDeletes=[];
+if(!config.deviceId){config.deviceId=newId();try{localStorage.setItem(CFG_KEY,JSON.stringify(config))}catch(e){}}
+function stamp(){lastStamp=Math.max(Date.now(),lastStamp+1);return lastStamp}
+function ensureDayMeta(day){
+ if(!day._fieldT||typeof day._fieldT!=='object')day._fieldT={};
+ if(!day._removed||typeof day._removed!=='object')day._removed={};
+ if(!day.tasks||typeof day.tasks!=='object')day.tasks={};
+ return day;
+}
+const migrationStamp=1; // Legacy data starts older than later cloud edits on other devices.
+for(const day of Object.values(data.days)){
+ if(!day||typeof day!=='object')continue;
+ ensureDayMeta(day);
+ for(const key of ['priority','desire','off'])if(Object.hasOwn(day,key)&&!day._fieldT[key])day._fieldT[key]=migrationStamp;
+ let rank=0;
+ for(const list of Object.values(day.tasks))if(Array.isArray(list))for(const item of list){
+  if(!item||typeof item!=='object')continue;
+  if(!item._updatedAt)item._updatedAt=migrationStamp;
+  if(!item._createdAt)item._createdAt=migrationStamp+rank++;
+ }
+}
+for(const link of Object.values(data.sync.links))if(link&&!link._updatedAt)link._updatedAt=migrationStamp;
+for(const link of data.sync.pendingDeletes){
+ if(!link||typeof link!=='object')continue;
+ if(!link.key)link.key=[link.kind,link.listId||'',link.remoteId].join(':');
+ if(!link._updatedAt)link._updatedAt=migrationStamp;
+ if(!link.status)link.status='pending';
+}
 // Migration: all legacy entries acquire stable local identifiers and a publication type.
 for(const [date,day] of Object.entries(data.days)){
  if(!day?.tasks)continue;
@@ -164,7 +208,7 @@ function writeLocal(){
  try{localStorage.setItem(KEY,JSON.stringify(data));$('saveStatus').textContent='Modifications enregistrées';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{$('saveStatus').textContent=''},1800)}
  catch(e){if(!warnOnce){warnOnce=true;alert('Enregistrement local bloqué. Exportez une sauvegarde JSON régulièrement.')}}
 }
-function save(){writeLocal();renderWeek();scheduleAutoSync()}
+function save(){writeLocal();renderWeek();scheduleDriveSave();scheduleAutoSync()}
 function saveConfig(){try{localStorage.setItem(CFG_KEY,JSON.stringify(config))}catch(e){setSyncMessage('Impossible de conserver les paramètres localement.',true)}}
 function getDay(iso=selected){if(!data.days[iso])data.days[iso]={};return data.days[iso]}
 function offDay(){const day=getDay();return day.off===true||(day.off!==false && parseDay(selected).getDay()===6)}
@@ -211,20 +255,28 @@ function formParts(form,slot,kind='task',value='',times){
  form.append(input,select,submit,timesRow);
  return {input,select,a,b,submit,timesRow};
 }
-function removeRemoteLink(item){const link=data.sync.links[item.id];if(link){data.sync.pendingDeletes.push({kind:link.kind,remoteId:link.remoteId,listId:link.listId||''});delete data.sync.links[item.id]}}
+function removeRemoteLink(item){
+ const link=data.sync.links[item.id];
+ if(link&&!link._deletedAt){
+  const ts=stamp(),key=[link.kind,link.listId||'',link.remoteId].join(':');
+  const queued=data.sync.pendingDeletes.find(p=>p.key===key);
+  if(!queued)data.sync.pendingDeletes.push({kind:link.kind,remoteId:link.remoteId,listId:link.listId||'',key,status:'pending',_updatedAt:ts});
+  data.sync.links[item.id]={...link,_deletedAt:ts,_updatedAt:ts};
+ }
+}
 function addForm(slot){const form=el('form','add');const defaultKind=slot.cat==='joy'?'note':'task';const p=formParts(form,slot,defaultKind);
  form.addEventListener('submit',ev=>{
   ev.preventDefault();const value=p.input.value.trim();if(!value)return;
   if(p.select.value==='event'&&!validateEvent(slot,p.a.value,p.b.value)){alert('Précisez des heures de début et de fin valides, à l’intérieur de ce créneau.');return}
   const day=getDay();if(!day.tasks)day.tasks={};if(!day.tasks[slot.index])day.tasks[slot.index]=[];
-  const record={id:newId(),text:value,done:false,kind:p.select.value};if(record.kind==='event'){record.start=p.a.value;record.end=p.b.value}
+  const ts=stamp();const record={id:newId(),text:value,done:false,kind:p.select.value,_updatedAt:ts,_createdAt:ts};if(record.kind==='event'){record.start=p.a.value;record.end=p.b.value}
   day.tasks[slot.index].push(record);save();renderSlots();updateStatus();toast('Activité ajoutée');
  });return form;
 }
 function rowFor(item,index,slot){const row=el('li','task'+(item.done?' completed':''));
  if(item.kind==='task'){
   const checkbox=el('input','check');checkbox.type='checkbox';checkbox.checked=!!item.done;checkbox.setAttribute('aria-label','Marquer comme accompli : '+item.text);
-  checkbox.addEventListener('change',()=>{item.done=checkbox.checked;save();renderSlots();updateStatus()});row.append(checkbox);
+  checkbox.addEventListener('change',()=>{item.done=checkbox.checked;item._updatedAt=stamp();save();renderSlots();updateStatus()});row.append(checkbox);
  }else row.append(el('span','no-check'));
  const main=el('div','task-main');main.append(el('span','name',item.text));
  const status=el('div','item-info',item.kind==='event'?`${item.start} – ${item.end} · ${KINDS.event}`:KINDS[item.kind]||KINDS.note);
@@ -235,6 +287,7 @@ function rowFor(item,index,slot){const row=el('li','task'+(item.done?' completed
  const del=el('button',null,'×');del.type='button';del.title='Supprimer cette activité';
  del.addEventListener('click',()=>{
   const day=getDay(),items=day.tasks?.[slot.index]||[];
+  const ts=stamp();ensureDayMeta(day);day._removed[item.id]=ts;
   removeRemoteLink(item);items.splice(index,1);save();renderSlots();updateStatus();toast('Activité supprimée. Suppression Google en attente si nécessaire.');
  });buttons.append(edit,del);row.append(buttons);
  return row;
@@ -249,7 +302,7 @@ function showEditor(row,item,slot){
   const nextKind=p.select.value;
   if(nextKind==='event'&&!validateEvent(slot,p.a.value,p.b.value)){alert('Les horaires doivent rester dans le créneau.');return}
   if(item.kind!==nextKind)removeRemoteLink(item);
-  item.text=value;item.kind=nextKind;if(nextKind==='event'){item.start=p.a.value;item.end=p.b.value}else{delete item.start;delete item.end}
+  item._updatedAt=stamp();item.text=value;item.kind=nextKind;if(nextKind==='event'){item.start=p.a.value;item.end=p.b.value}else{delete item.start;delete item.end}
   if(nextKind!=='task')item.done=false;
   save();renderSlots();updateStatus();toast('Activité modifiée');
  });
@@ -273,7 +326,7 @@ function render(){const day=getDay();$('dateTitle').textContent=pretty(selected)
 function dayShift(n){const date=parseDay(selected);date.setDate(date.getDate()+n);selected=localISO(date);render()}
 function toast(msg){const target=$('toast');target.textContent=msg;target.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>target.classList.remove('show'),2700)}
 function download(name,content,type){const blob=new Blob([content],{type});const href=URL.createObjectURL(blob),a=document.createElement('a');a.href=href;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(href),1400)}
-function backup(){download('3x8-sauvegarde-'+selected+'.json',JSON.stringify({version:2,exportedAt:new Date().toISOString(),days:data.days,sync:data.sync},null,2),'application/json;charset=utf-8')}
+function backup(){download('3x8-sauvegarde-'+selected+'.json',JSON.stringify({version:3,exportedAt:new Date().toISOString(),days:data.days,sync:data.sync},null,2),'application/json;charset=utf-8')}
 function escapeICS(s){return String(s).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
 function stampDate(iso,time){return iso.replace(/-/g,'')+'T'+time.replace(':','')+'00'}
 function nextISO(iso){const d=parseDay(iso);d.setDate(d.getDate()+1);return localISO(d)}
@@ -284,6 +337,169 @@ function makeICS(){const day=getDay();const lines=['BEGIN:VCALENDAR','VERSION:2.
    'SUMMARY:'+escapeICS(t.text),'DESCRIPTION:'+escapeICS('3 × 8 · '+LABELS[s.cat]),'END:VEVENT');
  }
  lines.push('END:VCALENDAR');download('3x8-agenda-'+selected+'.ics',lines.join('\r\n')+'\r\n','text/calendar;charset=utf-8');
+}
+// Sync architecture: one private Drive appDataFolder JSON snapshot per browser/device.
+// Separate files avoid cross-device write collisions; field/item timestamps and deletion
+// markers converge on changes while leaving the 3 × 8 interface authoritative.
+function cloudStatus(label,cls,msg){
+ $('cloudLabel').textContent=label;
+ $('cloudLight').className='sync-light'+(cls==='good'?' on':cls==='busy'?' busy':'');
+ $('cloudMessage').textContent=msg;
+ $('cloudMessage').className='cloud-state'+(cls==='good'?' good':cls==='error'?' error':'');
+ $('cloudRefresh').disabled=!connected()||!cloudReady||cloudBusy;
+ $('cloudSave').disabled=!connected()||!cloudReady||cloudBusy;
+}
+function mergeDay(dst,source){
+ if(!source||typeof source!=='object')return;
+ ensureDayMeta(dst);
+ const src=source;
+ for(const field of ['off','priority','desire']){
+  const ts=Number(src._fieldT?.[field]||0),old=Number(dst._fieldT?.[field]||0);
+  if(ts>old || (ts===old&&ts&&String(src[field]??'')>String(dst[field]??''))){
+   if(Object.hasOwn(src,field))dst[field]=src[field];
+   dst._fieldT[field]=ts;
+  }
+ }
+ for(const [id,ts] of Object.entries(src._removed||{})){
+  if(Number(ts)>Number(dst._removed[id]||0))dst._removed[id]=ts;
+ }
+ const entries=new Map();
+ const add=(day)=>{for(const [idx,list] of Object.entries(day.tasks||{})){
+  if(!Array.isArray(list)||!/^\d+$/.test(idx)||Number(idx)>8)continue;
+  for(const t of list){
+   if(!t||typeof t!=='object'||typeof t.id!=='string')continue;
+   const prev=entries.get(t.id),rev=Number(t._updatedAt||0);
+   const tie=prev&&rev===Number(prev.item._updatedAt||0)&&JSON.stringify(t)>JSON.stringify(prev.item);
+   if(!prev||rev>Number(prev.item._updatedAt||0)||tie)entries.set(t.id,{item:t,idx});
+  }
+ }};
+ add(dst);add(src);
+ const merged={};
+ for(const [id,{item,idx}] of entries){
+  if(Number(dst._removed[id]||0)>=Number(item._updatedAt||0))continue;
+  (merged[idx]??=[]).push(item);
+ }
+ for(const list of Object.values(merged))list.sort((a,b)=>(Number(a._createdAt||0)-Number(b._createdAt||0))||a.id.localeCompare(b.id));
+ dst.tasks=merged;
+}
+function mergeSnapshot(snap){
+ if(!snap||typeof snap!=='object'||!snap.days||typeof snap.days!=='object'||Array.isArray(snap.days))return false;
+ const before=JSON.stringify(data);
+ for(const [iso,source] of Object.entries(snap.days)){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso))continue;
+  const dst=data.days[iso]||(data.days[iso]={});
+  mergeDay(dst,source);
+ }
+ if(snap.sync&&typeof snap.sync==='object'){
+  const links=snap.sync.links||{};
+  for(const [id,link] of Object.entries(links)){
+   if(!link||typeof link!=='object'||typeof link.remoteId!=='string')continue;
+   const old=data.sync.links[id],a=Number(link._updatedAt||0),b=Number(old?._updatedAt||0);
+   if(!old||a>b||(a===b&&JSON.stringify(link)>JSON.stringify(old)))data.sync.links[id]=link;
+  }
+  const queue=new Map();
+  for(const link of [...data.sync.pendingDeletes,...(Array.isArray(snap.sync.pendingDeletes)?snap.sync.pendingDeletes:[])]){
+   if(!link||typeof link!=='object'||!link.remoteId)continue;
+   const key=link.key||[link.kind,link.listId||'',link.remoteId].join(':');
+   const old=queue.get(key),a=Number(link._updatedAt||0),b=Number(old?._updatedAt||0);
+   if(!old||a>b||(a===b&&link.status==='done'))queue.set(key,{...link,key});
+  }
+  data.sync.pendingDeletes=[...queue.values()].sort((a,b)=>a.key.localeCompare(b.key));
+ }
+ return JSON.stringify(data)!==before;
+}
+async function driveFetch(method,url,body,contentType){
+ if(!connected())throw Error('Session Google expirée. Reconnectez-vous pour synchroniser Drive.');
+ const headers={'Authorization':'Bearer '+accessToken};
+ if(contentType)headers['Content-Type']=contentType;
+ const response=await fetch(url,{method,headers,body,cache:'no-store'});
+ if(response.status===401){accessToken='';googleStatus('Session expirée');throw Error('Autorisation expirée : reconnectez Google.');}
+ const raw=await response.text();let result=null;
+ try{result=raw?JSON.parse(raw):null}catch(e){result=raw}
+ if(!response.ok){const err=new Error('Drive '+response.status+' : '+(result?.error?.message||String(raw).slice(0,200)||'Erreur réseau'));err.status=response.status;throw err;}
+ return result;
+}
+async function driveList(){
+ const files=[];let page='';
+ do{
+  const qs=new URLSearchParams({spaces:'appDataFolder',pageSize:'1000',fields:'nextPageToken,files(id,name,modifiedTime)'});
+  if(page)qs.set('pageToken',page);
+  const result=await driveFetch('GET',DRIVE_BASE+'?'+qs);
+  files.push(...(result.files||[]).filter(f=>typeof f.name==='string'&&f.name.startsWith(DRIVE_PREFIX)&&f.name.endsWith('.json')));
+  page=result.nextPageToken||'';
+ }while(page);
+ return files;
+}
+function snapshot(){return {schema:3,deviceId:config.deviceId,savedAt:new Date().toISOString(),days:data.days,sync:data.sync}}
+async function uploadOwn(){
+ const content=JSON.stringify(snapshot());
+ if(!cloudFileId){
+  const boundary='sync3x8'+newId().replace(/-/g,'');
+  const meta=JSON.stringify({name:DRIVE_PREFIX+config.deviceId+'.json',parents:['appDataFolder'],mimeType:'application/json'});
+  const multi='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+meta+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+content+'\r\n--'+boundary+'--';
+  const created=await driveFetch('POST',DRIVE_UPLOAD+'?uploadType=multipart&fields=id,name',multi,'multipart/related; boundary='+boundary);
+  cloudFileId=created.id;
+ }else{
+  await driveFetch('PATCH',DRIVE_UPLOAD+'/'+encodeURIComponent(cloudFileId)+'?uploadType=media&fields=id',content,'application/json; charset=UTF-8');
+ }
+}
+async function pullCloud({initial=false}={}){
+ const files=await driveList();let changes=false;
+ const ownName=DRIVE_PREFIX+config.deviceId+'.json';
+ const own=files.find(f=>f.name===ownName);
+ if(own)cloudFileId=own.id;
+ for(const file of files){
+  try{
+   const remote=await driveFetch('GET',DRIVE_BASE+'/'+encodeURIComponent(file.id)+'?alt=media');
+   changes=mergeSnapshot(remote)||changes;
+  }catch(e){throw Error('Lecture de la sauvegarde '+file.name+' : '+e.message)}
+ }
+ lastCloudPull=Date.now();
+ if(changes){writeLocal();render();}
+ return {changes,files:files.length};
+}
+function scheduleDriveSave(){
+ cloudDirty=true;
+ if(!cloudReady||!connected()||!cloudHasGrant)return;
+ clearTimeout(cloudTimer);
+ cloudTimer=setTimeout(()=>flushCloud(),1500);
+}
+async function flushCloud(force=false){
+ if(!cloudReady||!connected()||!cloudHasGrant)return;
+ if(cloudBusy){cloudDirty=true;return}
+ if(!cloudDirty&&!force)return;
+ cloudBusy=true;cloudStatus('Sauvegarde…','busy','Envoi sécurisé des modifications sur Google Drive.');
+ clearTimeout(cloudTimer);cloudDirty=false;
+ try{
+  // Pull before write, ensuring another device's unrelated edits are kept.
+  if(Date.now()-lastCloudPull>8000)await pullCloud();
+  await uploadOwn();
+  cloudStatus('À jour','good','Dernière sauvegarde : '+new Intl.DateTimeFormat('fr-FR',{dateStyle:'short',timeStyle:'short'}).format(new Date())+'.');
+ }catch(e){cloudDirty=true;cloudStatus('Erreur Drive','error',e.message+'\nLes modifications restent enregistrées dans ce navigateur.');}
+ finally{cloudBusy=false;cloudStatus($('cloudLabel').textContent,$('cloudMessage').classList.contains('error')?'error':'good',$('cloudMessage').textContent);if(cloudDirty&&connected())cloudTimer=setTimeout(()=>flushCloud(),10000)}
+}
+async function refreshCloud(){
+ if(!cloudReady||!connected()||cloudBusy)return;
+ cloudBusy=true;cloudStatus('Actualisation…','busy','Recherche des modifications des autres appareils.');
+ try{
+  const {changes}=await pullCloud();
+  cloudStatus('À jour','good',changes?'Modifications récupérées depuis les autres appareils.':'Aucune nouvelle modification.');
+  if(changes){scheduleDriveSave();if(config.autoSync)scheduleAutoSync();}
+ }catch(e){cloudStatus('Erreur Drive','error',e.message)}
+ finally{cloudBusy=false;cloudStatus($('cloudLabel').textContent,$('cloudMessage').classList.contains('error')?'error':'good',$('cloudMessage').textContent);if(cloudDirty)flushCloud()}
+}
+async function initCloud(){
+ cloudReady=false;cloudBusy=true;cloudFileId='';cloudStatus('Initialisation…','busy','Recherche des sauvegardes privées du compte Google.');
+ try{
+  const {changes,files}=await pullCloud({initial:true});
+  // Always write to this browser's own file; no other device's file is changed.
+  await uploadOwn();
+  cloudReady=true;
+  cloudStatus('À jour','good',files?'Données fusionnées avec Google Drive. Synchronisation multi-appareils active.':'Première sauvegarde privée créée sur Google Drive.');
+  clearInterval(cloudPollTimer);
+  cloudPollTimer=setInterval(()=>{if(connected()&&!cloudBusy&&!document.hidden)refreshCloud()},60000);
+ }catch(e){cloudReady=false;cloudHasGrant=false;cloudStatus('Non disponible','error',e.message+'\nVos données locales restent intactes. Vérifiez que Google Drive API est activée et autorisée.');}
+ finally{cloudBusy=false;cloudStatus($('cloudLabel').textContent,$('cloudMessage').classList.contains('error')?'error':'good',$('cloudMessage').textContent);if(cloudDirty&&cloudReady)scheduleDriveSave()}
 }
 // Google OAuth is requested by an actual click. Tokens are never written to localStorage.
 function googleStatus(label,cl){$('connectionLabel').textContent=label;$('syncLight').className='sync-light'+(cl?' '+cl:'');$('syncNow').disabled=!connected()||syncBusy;$('disconnectGoogle').disabled=!connected();
@@ -302,7 +518,12 @@ function initGoogle(){
    accessToken=r.access_token;tokenExpires=Date.now()+(Number(r.expires_in)||3600)*1000;
    // Re-select the Tasks list for the freshly authenticated account.
    config.taskListId='';saveConfig();
-   googleStatus('Connecté','on');setSyncMessage('Connexion établie. '+(config.autoSync?'Synchronisation en cours…':'Activez la synchronisation automatique ou cliquez sur « Synchroniser ».'));
+   googleStatus('Connecté','on');
+   const granted=(r.scope||'').split(/\s+/);
+   cloudHasGrant=!r.scope||granted.includes(DRIVE_SCOPE);
+   setSyncMessage('Connexion établie. '+(config.autoSync?'Synchronisation Google activée.':'Cliquez sur « Synchroniser » pour mettre à jour Agenda et Tasks.'));
+   if(cloudHasGrant){await initCloud();}
+   else cloudStatus('Accès Drive non accordé','error','Reconnectez Google et autorisez les données applicatives Google Drive. Agenda et Tasks restent accessibles.');
    if(config.autoSync)await syncAll();
   },
   error_callback:e=>setSyncMessage('Connexion interrompue : '+(e.type||'fenêtre refusée'),true)
@@ -343,7 +564,7 @@ async function deleteLinked(item){
  else if(link.kind==='task')await api('DELETE','https://tasks.googleapis.com/tasks/v1/lists/'+encodeURIComponent(link.listId||config.taskListId)+'/tasks/'+encodeURIComponent(link.remoteId));
 }
 async function updateLinked(record,day,slot){
- const link=data.sync.links[record.id];const payload=record.kind==='event'?eventPayload(day,slot,record):taskPayload(day,slot,record);
+ const oldLink=data.sync.links[record.id];const link=oldLink&&!oldLink._deletedAt?oldLink:null;const payload=record.kind==='event'?eventPayload(day,slot,record):taskPayload(day,slot,record);
  const hash=simpleHash(payload);if(link&&link.kind===record.kind&&link.hash===hash)return false;
  if(record.kind==='event'){
   const resource={...payload};const eventID=link?.remoteId||payload.id;
@@ -353,22 +574,24 @@ async function updateLinked(record,day,slot){
    try{await api('POST','https://www.googleapis.com/calendar/v3/calendars/primary/events',payload)}
    catch(e){if(e.status!==409)throw e;delete resource.id;await api('PATCH','https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(payload.id),resource)}
   }
-  data.sync.links[record.id]={kind:'event',remoteId:payload.id,hash};writeLocal();return true;
+  data.sync.links[record.id]={kind:'event',remoteId:payload.id,hash,_updatedAt:stamp()};writeLocal();scheduleDriveSave();return true;
  }
  const listID=await getTaskListId();let remote;
  if(link&&link.kind==='task')remote=await api('PATCH','https://tasks.googleapis.com/tasks/v1/lists/'+encodeURIComponent(link.listId||listID)+'/tasks/'+encodeURIComponent(link.remoteId),payload);
  else remote=await api('POST','https://tasks.googleapis.com/tasks/v1/lists/'+encodeURIComponent(listID)+'/tasks',payload);
- data.sync.links[record.id]={kind:'task',remoteId:remote.id,listId:listID,hash};writeLocal();return true;
+ data.sync.links[record.id]={kind:'task',remoteId:remote.id,listId:listID,hash,_updatedAt:stamp()};writeLocal();scheduleDriveSave();return true;
 }
 async function syncAll(){
  if(syncBusy||!connected())return;
+ if(cloudHasGrant&&!cloudReady){setSyncMessage('Synchronisation différée : chargement des données privées Drive.');return}
+ if(cloudReady&&!cloudBusy&&Date.now()-lastCloudPull>3000){try{await pullCloud()}catch(e){setSyncMessage('Vérification Drive impossible : '+e.message,true);return}}
  syncBusy=true;googleStatus('Synchronisation…','busy');let updated=0,deleted=0,failed=0;const errors=[];
  $('syncNow').disabled=true;
  try{
   // Apply explicit deletion queue. A 404 means already removed remotely.
-  for(const link of [...data.sync.pendingDeletes]){
-   try{await deleteLinked(link);data.sync.pendingDeletes.splice(data.sync.pendingDeletes.indexOf(link),1);deleted++;writeLocal()}
-   catch(e){if(e.status===404){data.sync.pendingDeletes.splice(data.sync.pendingDeletes.indexOf(link),1);writeLocal()}
+  for(const link of [...data.sync.pendingDeletes].filter(p=>p.status!=='done')){
+   try{await deleteLinked(link);link.status='done';link._updatedAt=stamp();deleted++;writeLocal();scheduleDriveSave()}
+   catch(e){if(e.status===404){link.status='done';link._updatedAt=stamp();writeLocal();scheduleDriveSave()}
     else{failed++;errors.push('Suppression : '+e.message)}}
   }
   const today=localISO(new Date());
@@ -393,13 +616,13 @@ async function syncAll(){
  finally{syncBusy=false;googleStatus(connected()?'Connecté':'Session expirée',connected()?'on':'');if(resyncNeeded&&config.autoSync&&connected()){resyncNeeded=false;clearTimeout(autoTimer);autoTimer=setTimeout(()=>syncAll(),350)}}
 }
 function scheduleAutoSync(){if(!config.autoSync||!connected())return;if(syncBusy){resyncNeeded=true;return}clearTimeout(autoTimer);autoTimer=setTimeout(()=>{syncAll()},1200)}
-function disconnect(){accessToken='';tokenExpires=0;googleStatus('Non connecté');setSyncMessage('Déconnecté : aucune activité n’est envoyée à Google. Les données locales sont conservées.');}
+function disconnect(){accessToken='';tokenExpires=0;cloudReady=false;cloudHasGrant=false;cloudFileId='';clearTimeout(cloudTimer);clearInterval(cloudPollTimer);googleStatus('Non connecté');cloudStatus('Déconnecté','', 'La copie locale reste disponible.');setSyncMessage('Déconnecté : aucune activité n’est envoyée à Google. Les données locales sont conservées.');}
 // Main navigation and data handlers.
 $('prevBtn').addEventListener('click',()=>dayShift(-1));$('nextBtn').addEventListener('click',()=>dayShift(1));
 $('todayBtn').addEventListener('click',()=>{selected=localISO(new Date());render()});
 $('datePicker').addEventListener('change',e=>{if(/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)){selected=e.target.value;render()}});
-$('offCheckbox').addEventListener('change',e=>{getDay().off=e.target.checked;save();render()});
-for(const id of ['priority','desire'])$(id).addEventListener('input',e=>{getDay()[id]=e.target.value;save()});
+$('offCheckbox').addEventListener('change',e=>{const d=ensureDayMeta(getDay());d.off=e.target.checked;d._fieldT.off=stamp();save();render()});
+for(const id of ['priority','desire'])$(id).addEventListener('input',e=>{const d=ensureDayMeta(getDay());d[id]=e.target.value;d._fieldT[id]=stamp();save()});
 $('printBtn').addEventListener('click',()=>window.print());$('exportBtn').addEventListener('click',backup);$('backupBtn').addEventListener('click',backup);
 $('importBtn').addEventListener('click',()=>$('importFile').click());
 $('importFile').addEventListener('change',async e=>{
@@ -417,7 +640,15 @@ $('importFile').addEventListener('change',async e=>{
   if(imported.sync?.links&&Object.keys(imported.sync.links).length&&confirm('Cette sauvegarde contient des liens Google. La restaurez-vous pour le MÊME compte Google ? (Annuler = liens réinitialisés ; les publications futures peuvent recréer les éléments)')){
    data.sync={links:imported.sync.links,pendingDeletes:imported.sync.pendingDeletes||[]};
   }
-  writeLocal();render();toast('Sauvegarde restaurée.');
+  const ts=stamp();
+  for(const d of Object.values(data.days)){
+   ensureDayMeta(d);
+   for(const field of ['priority','desire','off'])if(Object.hasOwn(d,field))d._fieldT[field]=ts;
+   for(const list of Object.values(d.tasks))if(Array.isArray(list))for(const item of list){item._updatedAt=ts;if(!item._createdAt)item._createdAt=ts}
+  }
+  for(const l of Object.values(data.sync.links))if(l)l._updatedAt=ts;
+  for(const l of data.sync.pendingDeletes)if(l)l._updatedAt=ts;
+  writeLocal();scheduleDriveSave();render();toast('Sauvegarde restaurée.');
  }catch(err){alert('Restauration impossible : '+err.message)}finally{e.target.value=''}
 });
 $('icsBtn').addEventListener('click',makeICS);
@@ -435,6 +666,10 @@ $('connectGoogle').addEventListener('click',()=>{
  catch(e){setSyncMessage(e.message,true)}
 });
 $('syncNow').addEventListener('click',()=>syncAll());
+$('cloudRefresh').addEventListener('click',()=>refreshCloud());
+$('cloudSave').addEventListener('click',()=>flushCloud(true));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&connected()&&cloudReady&&Date.now()-lastCloudPull>10000)refreshCloud()});
+window.addEventListener('focus',()=>{if(connected()&&cloudReady&&Date.now()-lastCloudPull>10000)refreshCloud()});
 $('disconnectGoogle').addEventListener('click',disconnect);
 // A local file works offline. Only OAuth library is a remote dependency, lazily required at connection.
 const googleScript=document.createElement('script');googleScript.src='https://accounts.google.com/gsi/client';googleScript.async=true;googleScript.defer=true;document.head.append(googleScript);
