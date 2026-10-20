@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#F7F6F2">
+<title>3 × 8 — Ma journée et Google</title>
+<style>
+:root{--ink:#202C3D;--muted:#718092;--line:#E7E9EB;--bg:#F6F7F5;--white:#fff;--health:#28796A;--health-pale:#E9F5F1;--mind:#456CC1;--mind-pale:#ECF1FE;--joy:#BD763D;--joy-pale:#FEF3E8;--shadow:0 9px 30px rgba(26,47,63,.045)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #92A9DC;outline-offset:2px}button:disabled{opacity:.42;cursor:not-allowed}.wrap{max-width:1190px;margin:auto;padding:35px 28px 70px}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap}.eyebrow{font-size:11px;letter-spacing:.15em;color:var(--mind);text-transform:uppercase;font-weight:800;margin-bottom:5px}.brand{font-weight:830;font-size:clamp(30px,4vw,42px);letter-spacing:-.045em;line-height:1.12;margin:0}.sub{color:var(--muted);margin:10px 0 0;max-width:620px}.topActions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.btn{border:1px solid #D9DEE5;background:#fff;border-radius:11px;padding:9px 12px;color:var(--ink);font-weight:620;font-size:13px;transition:background .15s,border-color .15s}.btn:hover{background:#F2F4F8;border-color:#C5CBD4}.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}.btn.primary:hover{background:#3b4a5f}.btn.small{font-size:12px;padding:7px 9px}.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}.kpi{background:#fff;border:1px solid var(--line);padding:20px 21px;border-radius:18px;box-shadow:var(--shadow);position:relative;overflow:hidden}.kpi:before{content:"";position:absolute;top:0;left:0;bottom:0;width:5px;background:var(--accent)}.kpi h2{font-size:13px;margin:0 0 11px;color:var(--ink);font-weight:700}.kpi .value{font-size:32px;letter-spacing:-.065em;font-weight:800;line-height:1;color:var(--accent)}.kpi .support{font-size:12px;color:var(--muted);margin-top:9px}.kpi.health{--accent:var(--health)}.kpi.mind{--accent:var(--mind)}.kpi.joy{--accent:var(--joy)}.ratio{display:flex;height:10px;overflow:hidden;border-radius:100px;margin:17px 0 25px;background:#fff}.ratio span:nth-child(1){background:var(--health)}.ratio span:nth-child(2){background:var(--mind)}.ratio span:nth-child(3){background:var(--joy)}
+.controls{display:flex;gap:13px;flex-wrap:wrap;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:17px;padding:14px 17px;margin-bottom:16px}.dateNav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dateTitle{min-width:188px;font-size:16px;font-weight:760;letter-spacing:-.015em;text-align:center}.arrow{width:36px;height:36px;padding:0;font-size:21px;line-height:1}.customDate{border:1px solid var(--line);padding:7px;border-radius:10px;background:white;color:var(--ink);max-width:153px}.toggle{display:inline-flex;gap:9px;align-items:center;font-size:13px;font-weight:650;white-space:nowrap}.toggle input{accent-color:var(--mind);width:17px;height:17px}.layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(270px,.83fr);gap:20px;align-items:start}.panel{background:#fff;border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow);overflow:hidden}.panel-head{padding:20px 22px 13px}.panel-title{font-size:19px;font-weight:780;letter-spacing:-.025em;margin:0}.panel-sub{font-size:12px;color:var(--muted);margin:4px 0 0}.timeline{padding:5px 14px 13px}.slot{display:grid;grid-template-columns:94px minmax(0,1fr);gap:13px;padding:14px 8px;border-top:1px solid var(--line);position:relative}.slot:first-child{border-top:0}.clock{padding-top:1px}.hours{font-size:14px;font-weight:770;white-space:nowrap;letter-spacing:-.018em}.duration{font-size:11px;color:var(--muted);margin-top:2px}.slotContent{min-width:0}.slotHead{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}.cat{padding:4px 9px;border-radius:50px;font-size:11px;font-weight:760;line-height:1.4}.cat.health{background:var(--health-pale);color:var(--health)}.cat.mind{background:var(--mind-pale);color:var(--mind)}.cat.joy{background:var(--joy-pale);color:var(--joy)}.fixed-label{font-size:14px;font-weight:620}.fixed-note{font-size:12px;color:var(--muted)}.task-list{list-style:none;margin:6px 0;padding:0;display:grid;gap:6px}.task{display:flex;gap:8px;align-items:center;border:1px solid #EAECEF;background:#FCFDFD;border-radius:10px;padding:7px 9px;min-width:0}.task .name{flex:1;overflow-wrap:anywhere;font-size:13px;line-height:1.4}.task.completed .name{text-decoration:line-through;color:#88949D}.task .check{width:16px;height:16px;accent-color:var(--mind);flex:none}.task .no-check{width:16px;height:16px;border-radius:50%;background:#EAD6C2;flex:none}.delete{border:none;background:transparent;color:#8D98A6;font-weight:bold;font-size:18px;line-height:1;padding:2px 5px;border-radius:6px}.delete:hover{background:#F3E9E7;color:#A85145}.add{display:flex;gap:7px;margin-top:8px}.add input{width:100%;min-width:0;border:1px solid #DFE5EC;background:#fff;padding:9px 10px;border-radius:10px;font-size:13px;outline-offset:0}.add button{flex:none;width:36px;height:36px;padding:0;border-radius:10px;background:var(--ink);border:0;color:white;font-size:22px;line-height:1}.add button:hover{background:#415166}.help{font-size:12px;color:var(--muted);margin:6px 0 0}.side{display:grid;gap:16px}.side .inner{padding:19px 20px}.quote{background:#F2F5F8;border-radius:12px;padding:14px 15px;font-size:13px;line-height:1.6;margin-top:11px}.field label{display:block;font-size:13px;font-weight:730;margin-bottom:7px}.field textarea{border:1px solid #DFE4EA;width:100%;resize:vertical;border-radius:11px;min-height:74px;padding:10px 12px;outline-offset:0;font-size:13px;line-height:1.5;background:#fff;color:var(--ink)}.field+.field{margin-top:16px}.saved{font-size:11px;color:var(--health);min-height:15px;margin-top:4px}.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-top:14px}.day{border:1px solid var(--line);background:white;border-radius:11px;padding:9px 2px;display:flex;align-items:center;flex-direction:column;gap:4px;min-width:0}.day:hover{background:#F4F6F9}.day.active{background:var(--ink);color:#fff;border-color:var(--ink)}.day .wd{font-size:10px;font-weight:700;color:var(--muted)}.day.active .wd{color:#CDD8E7}.day .num{font-size:16px;font-weight:750}.dot{height:5px;width:5px;border-radius:50%;background:var(--mind)}.day.active .dot{background:white}.sideNote{color:var(--muted);font-size:12px;line-height:1.6}.status{margin-top:16px;padding:11px 13px;border-radius:12px;background:#F3F6FA;font-size:13px}.meter{background:#E7ECF2;height:6px;border-radius:99px;overflow:hidden;margin-top:9px}.meterInner{height:100%;background:var(--mind);width:0;border-radius:99px;transition:width .2s}.tools{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}.tip{font-size:12px;line-height:1.55;color:var(--muted)}.tip strong{color:var(--ink)}.footer{text-align:center;color:#96A0AA;margin-top:27px;font-size:12px}.toast{position:fixed;right:18px;bottom:16px;padding:10px 14px;border:1px solid #BFE1D3;color:#1C6856;background:#EDFAF5;border-radius:12px;box-shadow:0 5px 20px #0000000D;font-size:13px;opacity:0;pointer-events:none;transition:opacity .15s}.toast.show{opacity:1}.visuallyHidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.side{grid-template-columns:repeat(2,minmax(0,1fr))}.side>.panel:first-child{grid-column:1/-1}}
+@media(max-width:600px){.wrap{padding:20px 12px 40px}.kpis{gap:7px}.kpi{padding:14px 11px;border-radius:13px}.kpi h2{font-size:11px;min-height:33px;line-height:1.35}.kpi .value{font-size:27px}.kpi .support{font-size:10px}.side{grid-template-columns:1fr}.dateTitle{min-width:150px}.controls{padding:11px}.slot{grid-template-columns:73px minmax(0,1fr);gap:8px;padding:13px 1px}.timeline{padding:3px 11px 12px}.hours{font-size:12px}.panel-head{padding:17px}.topActions{width:100%}.ratio{margin-bottom:17px}}
+@media print{body{background:#fff}.topActions,.controls,.add,.delete,.tools,.sideNote,.footer,.toast,.day{display:none!important}.wrap{max-width:100%;padding:0}.layout{display:block}.side{display:none}.slot{break-inside:avoid}.kpis{margin-top:12px}.panel{border:none;box-shadow:none}.kpi{box-shadow:none}.slot{padding:8px}.ratio{margin:10px 0}.timeline{padding:0}}
+
+/* Google synchronization + compact activity editor */
+.sync-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sync-light{width:8px;height:8px;background:#B7BEC8;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
+.sync-light.on{background:var(--health)}
+.sync-light.busy{background:#E6AA4A}
+.sync-meta{color:var(--muted);font-size:12px;line-height:1.6}
+.sync-fields{display:grid;gap:11px;margin-top:12px}
+.sync-fields label{font-size:12px;font-weight:730;display:block;margin-bottom:5px}
+.sync-fields input[type=text]{width:100%;border:1px solid #DFE5EC;border-radius:9px;padding:9px;font-size:12px;color:var(--ink);background:#fff}
+.sync-fields .checklabel{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.5;font-weight:500;color:var(--ink)}
+.sync-fields .checklabel input{margin:3px 0 0;accent-color:var(--mind)}
+.sync-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px}
+.sync-message{font-size:12px;line-height:1.55;margin-top:11px;white-space:pre-line;overflow-wrap:anywhere;color:var(--muted);min-height:18px}
+.sync-message.error{color:#AB4E43}
+.small-note{font-size:11px;line-height:1.5;color:var(--muted);margin-top:9px}
+.add{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center}
+.add select{border:1px solid #DFE5EC;border-radius:10px;background:white;padding:8px 4px;font-size:12px;color:var(--ink);min-width:88px}
+.add .event-times{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:12px;flex-wrap:wrap}
+.event-times input{width:108px!important;font-size:12px!important;padding:7px 8px!important}
+.task{align-items:flex-start}
+.task-main{flex:1;min-width:0}
+.task .name{display:block;font-weight:580}
+.item-info{font-size:11px;color:var(--muted);margin-top:3px}
+.item-toolbar{display:flex;align-items:center;gap:1px;flex-shrink:0}
+.item-toolbar button{width:25px;height:25px;border:none;background:transparent;border-radius:6px;color:#8D98A6;padding:0;font-size:14px}
+.item-toolbar button:hover{background:#F2F5F8;color:var(--ink)}
+.edit-form{display:grid;gap:8px;width:100%}
+.edit-form input,.edit-form select{padding:7px 8px;border:1px solid #DFE5EC;border-radius:7px;background:#fff;max-width:100%}
+.edit-form .edit-actions{display:flex;gap:7px}
+.event-label{font-size:11px;font-weight:700;color:var(--mind)}
+.assist-pair{display:flex;gap:5px;flex-wrap:wrap}
+.show{display:block!important}
+@media(max-width:480px){.add{grid-template-columns:1fr 95px 34px}.task{padding:8px 7px}.add input[type=text]{min-width:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div><div class="eyebrow">Un rythme à votre mesure</div><h1 class="brand">3 × 8 <span style="font-weight:400;color:#B7BFC8">/</span> Ma journée</h1><p class="sub">Prendre soin de soi. Libérer son esprit. Garder de la place pour le plaisir.</p></div>
+    <div class="topActions"><button class="btn" id="todayBtn" type="button">Aujourd'hui</button><button class="btn" id="printBtn" type="button">Imprimer</button><button class="btn primary" id="exportBtn" type="button">Sauvegarder</button></div>
+  </header>
+  <section class="kpis" aria-label="Répartition des 24 heures">
+    <div class="kpi health"><h2>Rester en forme</h2><div class="value" id="healthHours">8 h</div><div class="support">Corps, repos, alimentation</div></div>
+    <div class="kpi mind"><h2>Avoir l'esprit tranquille</h2><div class="value" id="mindHours">8 h</div><div class="support">Engagements et organisation</div></div>
+    <div class="kpi joy"><h2>Se faire plaisir</h2><div class="value" id="joyHours">8 h</div><div class="support">Libre, ensemble ou seul</div></div>
+  </section>
+  <div class="ratio" aria-hidden="true"><span id="rHealth" style="width:33.333%"></span><span id="rMind" style="width:33.333%"></span><span id="rJoy" style="width:33.333%"></span></div>
+  <div class="controls">
+    <div class="dateNav"><button class="btn arrow" id="prevBtn" type="button" aria-label="Jour précédent">‹</button><span class="dateTitle" id="dateTitle"></span><button class="btn arrow" id="nextBtn" type="button" aria-label="Jour suivant">›</button><input class="customDate" aria-label="Choisir une date" type="date" id="datePicker"></div>
+    <label class="toggle" title="Le samedi, le créneau 10 h – 14 h est déjà consacré au plaisir"><input id="offCheckbox" type="checkbox"> Journée de congé</label>
+  </div>
+  <div class="layout">
+    <main class="panel">
+      <div class="panel-head"><h2 class="panel-title">Le déroulé de ma journée</h2><p class="panel-sub" id="dayContext">Les plages fixes sont déjà installées. Ajoutez seulement les activités souhaitées ; choisissez Tâche, Agenda ou Libre.</p></div>
+      <div class="timeline" id="timeline"></div>
+    </main>
+    <aside class="side">
+      <section class="panel"><div class="inner"><h2 class="panel-title">L'essentiel aujourd'hui</h2><p class="panel-sub">Deux intentions, pas deux obligations.</p>
+        <div class="field" style="margin-top:16px"><label for="priority">Une chose importante à traiter</label><textarea id="priority" maxlength="600" placeholder="Ce qui allégerait vraiment mon esprit…"></textarea></div>
+        <div class="field"><label for="desire">Une chose dont j'ai envie</label><textarea id="desire" maxlength="600" placeholder="Même une toute petite envie…"></textarea></div>
+        <div class="saved" id="saveStatus" aria-live="polite"></div>
+        <div class="status"><span id="taskStatus">Aucune tâche enregistrée.</span><div class="meter"><div class="meterInner" id="completionBar"></div></div></div>
+      </div></section>
+      <section class="panel"><div class="inner"><h2 class="panel-title">Cette semaine</h2><p class="panel-sub">Sélectionnez un jour pour préparer la suite.</p><div class="week" id="week"></div><p class="sideNote" style="margin-bottom:0">Le samedi, 10 h – 14 h passe automatiquement au plaisir. Les congés peuvent être activés jour par jour.</p></div></section>
+      <section class="panel"><div class="inner">
+        <div class="sync-head"><h2 class="panel-title">Connexion Google</h2><span class="sync-meta"><span class="sync-light" id="syncLight"></span><span id="connectionLabel">Non connecté</span></span></div>
+        <p class="panel-sub">3 × 8 reste maître. Les rendez-vous vont dans Agenda et les tâches dans Tasks.</p>
+        <div class="sync-fields">
+          <div><label for="clientId">Identifiant client OAuth Google (application Web)</label><input id="clientId" type="text" placeholder="…apps.googleusercontent.com" autocomplete="off" spellcheck="false"></div>
+          <label class="checklabel"><input type="checkbox" id="autoSync"> Synchroniser automatiquement les changements lorsque Google est connecté.</label>
+        </div>
+        <div class="sync-btns">
+          <button type="button" class="btn primary small" id="connectGoogle">Connecter Google</button>
+          <button type="button" class="btn small" id="syncNow" disabled>Synchroniser</button>
+          <button type="button" class="btn small" id="disconnectGoogle" disabled>Déconnecter</button>
+        </div>
+        <p class="sync-message" id="syncMessage" role="status" aria-live="polite">Mode local : aucune donnée n'est envoyée à Google.</p>
+        <p class="small-note">Les activités « Libre » et les routines fixes ne sont pas publiées. Les nouvelles activités passées ne sont pas synchronisées. Vous gardez le contrôle des suppressions.</p>
+        <details style="margin-top:12px"><summary style="font-size:12px;font-weight:740;cursor:pointer">Comment activer la connexion ?</summary>
+          <p class="small-note">1. Hébergez cette page sur une adresse HTTPS (ou utilisez localhost pour un test). 2. Dans Google Cloud Console, activez Google Calendar API et Google Tasks API. 3. Créez un identifiant OAuth 2.0 de type « Application Web » et ajoutez l'origine exacte du site dans les origines JavaScript autorisées. 4. Collez l'identifiant client ici, connectez-vous et activez la synchronisation.</p>
+          <p class="small-note"><a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Ouvrir Google Cloud Console ↗</a></p>
+        </details>
+      </div></section>
+      <section class="panel"><div class="inner"><h2 class="panel-title">Mes données</h2><p class="sideNote">Vos activités sont enregistrées dans ce navigateur. Google ne reçoit que les éléments que vous classez comme « Tâche » ou « Agenda », après autorisation.</p><div class="tools"><button class="btn small" id="backupBtn" type="button">Exporter mes données</button><button class="btn small" id="importBtn" type="button">Restaurer</button><button class="btn small" id="icsBtn" type="button">Exporter la journée (.ics)</button></div><input type="file" id="importFile" class="visuallyHidden" accept="application/json,.json"><p class="tip" style="margin:14px 0 0"><strong>À savoir :</strong> les données locales de 3 × 8 ne sont pas encore synchronisées entre appareils. Exportez régulièrement vos données. L'export .ics est indépendant de la liaison Google.</p></div></section>
+      <section class="panel"><div class="inner"><h2 class="panel-title">Le principe</h2><div class="quote">Ce planning est un repère, pas un examen. Un moment laissé libre peut être une très bonne décision.</div><p class="tip" style="margin-bottom:0;margin-top:11px">Le sommeil prévu est de 6 h. Vous pourrez faire évoluer cette grille si vous décidez d'allonger vos nuits.</p></div></section>
+    </aside>
+  </div>
+  <footer class="footer">3 × 8 • Un cadre pour vivre, pas une course à remplir les heures.</footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+'use strict';
+const KEY='ma_journee_3x8_v1';
+const CFG_KEY='ma_journee_3x8_google_v2';
+const TIMEZONE='Africa/Tunis';
+const SCOPES='https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/tasks';
+const START=[
+ ['06:00','07:00','health','Petit déjeuner · Activité physique · Méditation',false],
+ ['07:00','09:00','mind','',true],
+ ['09:00','10:00','joy','',true],
+ ['10:00','14:00','mind','',true],
+ ['14:00','15:00','health','Déjeuner · Activité physique · Méditation',false],
+ ['15:00','17:00','joy','',true],
+ ['17:00','19:00','mind','Planification et organisation',true],
+ ['19:00','00:00','joy','',true],
+ ['00:00','06:00','health','Sommeil',false]
+];
+const LABELS={health:'Rester en forme',mind:'Avoir l’esprit tranquille',joy:'Se faire plaisir'};
+const KINDS={task:'Google Tasks',event:'Google Agenda',note:'Local · non publié'};
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const localISO=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseDay=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d,12)};
+const pretty=iso=>new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long'}).format(parseDay(iso));
+const escapeHTML=str=>String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const simpleHash=obj=>JSON.stringify(obj);
+const newId=()=>globalThis.crypto?.randomUUID?.()||`${Date.now().toString(16)}${Math.floor(Math.random()*1e12).toString(16).padStart(12,'0')}`;
+const timeValue=str=>Number(str.slice(0,2))*60+Number(str.slice(3,5));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const slotEnd=s=>s.end==='00:00' ? 1440 : timeValue(s.end);
+const isHttpsOrigin=()=>location.protocol==='https:'||(location.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(location.hostname));
+const el=(tag,cls,txt)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(txt!==undefined)node.textContent=txt;return node};
+let selected=localISO(new Date()),data={days:{},sync:{links:{},pendingDeletes:[]}},config={clientId:'',autoSync:false,taskListId:''};
+let oauthClient=null, accessToken='',tokenExpires=0, syncBusy=false, resyncNeeded=false, autoTimer,saveTimer,noticeTimer,warnOnce=false;
+try {const obj=JSON.parse(localStorage.getItem(KEY)||'null');if(obj&&obj.days&&typeof obj.days==='object')data=obj;}catch(e){console.warn('Enregistrement local illisible',e)}
+try {const obj=JSON.parse(localStorage.getItem(CFG_KEY)||'null');if(obj&&typeof obj==='object')config={...config,...obj};}catch(e){console.warn('Paramètres illisibles',e)}
+if(!data.sync||typeof data.sync!=='object')data.sync={links:{},pendingDeletes:[]};
+if(!data.sync.links)data.sync.links={};
+if(!Array.isArray(data.sync.pendingDeletes))data.sync.pendingDeletes=[];
+// Migration: all legacy entries acquire stable local identifiers and a publication type.
+for(const [date,day] of Object.entries(data.days)){
+ if(!day?.tasks)continue;
+ for(const [index,list] of Object.entries(day.tasks)){
+  if(!Array.isArray(list)){delete day.tasks[index];continue}
+  for(const item of list){
+   if(!item.id)item.id=newId();
+   if(!['task','event','note'].includes(item.kind))item.kind=[1,3,6].includes(Number(index))?'task':'note';
+   if(item.kind==='event' && (!item.start||!item.end)){
+    const s=START[Number(index)]||START[1];
+    item.start=s[0];item.end=timeLabel(Math.min(slotEnd({end:s[1]}),timeValue(s[0])+60));
+   }
+  }
+ }
+}
+function timeLabel(min){return `${pad(Math.floor(min%1440/60))}:${pad(min%60)}`}
+function writeLocal(){
+ try{localStorage.setItem(KEY,JSON.stringify(data));$('saveStatus').textContent='Modifications enregistrées';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{$('saveStatus').textContent=''},1800)}
+ catch(e){if(!warnOnce){warnOnce=true;alert('Enregistrement local bloqué. Exportez une sauvegarde JSON régulièrement.')}}
+}
+function save(){writeLocal();renderWeek();scheduleAutoSync()}
+function saveConfig(){try{localStorage.setItem(CFG_KEY,JSON.stringify(config))}catch(e){setSyncMessage('Impossible de conserver les paramètres localement.',true)}}
+function getDay(iso=selected){if(!data.days[iso])data.days[iso]={};return data.days[iso]}
+function offDay(){const day=getDay();return day.off===true||(day.off!==false && parseDay(selected).getDay()===6)}
+function slots(){return START.map((s,index)=>({
+ index,start:s[0],end:s[1],cat:index===3&&offDay()?'joy':s[2],fixed:s[3],editable:s[4],duration:[1,2,1,4,1,2,2,5,6][index]
+}))}
+function metrics(){const totals={health:0,mind:0,joy:0};for(const s of slots())totals[s.cat]+=s.duration;
+ for(const cat of Object.keys(totals)){
+  $(cat+'Hours').textContent=totals[cat]+' h';$('r'+cat[0].toUpperCase()+cat.slice(1)).style.width=(100*totals[cat]/24)+'%';
+ }
+}
+function updateStatus(){let all=0,done=0;const entries=getDay().tasks||{};
+ for(const s of slots().filter(s=>s.cat==='mind'))for(const t of (entries[s.index]||[]))if(t.kind==='task'){all++;if(t.done)done++}
+ $('taskStatus').textContent=all?`${done} tâche${done>1?'s':''} terminée${done>1?'s':''} sur ${all}.`:'Aucune tâche à cocher.';
+ $('completionBar').style.width=(all?100*done/all:0)+'%';
+}
+function renderWeek(){const parent=$('week');parent.replaceChildren();const date=parseDay(selected),wd=(date.getDay()+6)%7;date.setDate(date.getDate()-wd);
+ const labels=['L','M','M','J','V','S','D'];for(let i=0;i<7;i++){
+  const d=new Date(date);d.setDate(d.getDate()+i);const iso=localISO(d);
+  const btn=el('button','day'+(iso===selected?' active':''));btn.type='button';btn.setAttribute('aria-label',pretty(iso));
+  btn.append(el('span','wd',labels[i]),el('span','num',String(d.getDate())));
+  const info=data.days[iso];btn.append(info&&((info.priority||'').trim()||(info.desire||'').trim()||Object.values(info.tasks||{}).some(a=>a.length))?el('span','dot'):el('span',null,' '));
+  btn.addEventListener('click',()=>{selected=iso;render()});parent.append(btn);
+ }
+}
+function defaultTimes(slot){const a=timeValue(slot.start),b=Math.min(slotEnd(slot),a+60);return {start:timeLabel(a),end:timeLabel(b)}}
+function validateEvent(slot, start,end){if(!/^\d{2}:\d{2}$/.test(start)||!/^\d{2}:\d{2}$/.test(end))return false;
+ const a=timeValue(start),b=end==='00:00'&&slot.end==='00:00'?1440:timeValue(end);
+ return a>=timeValue(slot.start)&&b<=slotEnd(slot)&&b>a;
+}
+function formParts(form,slot,kind='task',value='',times){
+ form.replaceChildren();
+ const input=el('input');input.type='text';input.maxLength=180;input.required=true;input.value=value;
+ input.placeholder=slot.cat==='joy'?'Une envie, une sortie…':'Un engagement, une démarche…';input.setAttribute('aria-label','Activité '+slot.start+' à '+slot.end);
+ const select=el('select');select.setAttribute('aria-label','Destination de cette activité');
+ const defaultKind=slot.cat==='joy'?'note':'task';
+ for(const [id,label] of [['task','Tâche'],['event','Agenda'],['note','Libre']]){const opt=el('option',null,label);opt.value=id;select.append(opt)}
+ select.value=kind||defaultKind;
+ const submit=el('button',null,'+');submit.type='submit';submit.title='Ajouter';submit.setAttribute('aria-label','Ajouter l’activité');
+ const timesRow=el('div','event-times');const la=el('label',null,'Début');const a=el('input');a.type='time';a.value=times?.start||defaultTimes(slot).start;
+ const lb=el('label',null,'Fin');const b=el('input');b.type='time';b.value=times?.end||defaultTimes(slot).end;
+ la.append(a);lb.append(b);timesRow.append(la,lb);
+ const updateVisible=()=>timesRow.style.display=select.value==='event'?'flex':'none';select.addEventListener('change',updateVisible);updateVisible();
+ form.append(input,select,submit,timesRow);
+ return {input,select,a,b,submit,timesRow};
+}
+function removeRemoteLink(item){const link=data.sync.links[item.id];if(link){data.sync.pendingDeletes.push({kind:link.kind,remoteId:link.remoteId,listId:link.listId||''});delete data.sync.links[item.id]}}
+function addForm(slot){const form=el('form','add');const defaultKind=slot.cat==='joy'?'note':'task';const p=formParts(form,slot,defaultKind);
+ form.addEventListener('submit',ev=>{
+  ev.preventDefault();const value=p.input.value.trim();if(!value)return;
+  if(p.select.value==='event'&&!validateEvent(slot,p.a.value,p.b.value)){alert('Précisez des heures de début et de fin valides, à l’intérieur de ce créneau.');return}
+  const day=getDay();if(!day.tasks)day.tasks={};if(!day.tasks[slot.index])day.tasks[slot.index]=[];
+  const record={id:newId(),text:value,done:false,kind:p.select.value};if(record.kind==='event'){record.start=p.a.value;record.end=p.b.value}
+  day.tasks[slot.index].push(record);save();renderSlots();updateStatus();toast('Activité ajoutée');
+ });return form;
+}
+function rowFor(item,index,slot){const row=el('li','task'+(item.done?' completed':''));
+ if(item.kind==='task'){
+  const checkbox=el('input','check');checkbox.type='checkbox';checkbox.checked=!!item.done;checkbox.setAttribute('aria-label','Marquer comme accompli : '+item.text);
+  checkbox.addEventListener('change',()=>{item.done=checkbox.checked;save();renderSlots();updateStatus()});row.append(checkbox);
+ }else row.append(el('span','no-check'));
+ const main=el('div','task-main');main.append(el('span','name',item.text));
+ const status=el('div','item-info',item.kind==='event'?`${item.start} – ${item.end} · ${KINDS.event}`:KINDS[item.kind]||KINDS.note);
+ if(data.sync.links[item.id])status.textContent+=' · lié';main.append(status);row.append(main);
+ const buttons=el('div','item-toolbar');
+ const edit=el('button',null,'✎');edit.type='button';edit.title='Modifier cette activité';
+ edit.addEventListener('click',()=>showEditor(row,item,slot));
+ const del=el('button',null,'×');del.type='button';del.title='Supprimer cette activité';
+ del.addEventListener('click',()=>{
+  const day=getDay(),items=day.tasks?.[slot.index]||[];
+  removeRemoteLink(item);items.splice(index,1);save();renderSlots();updateStatus();toast('Activité supprimée. Suppression Google en attente si nécessaire.');
+ });buttons.append(edit,del);row.append(buttons);
+ return row;
+}
+function showEditor(row,item,slot){
+ const form=el('form','edit-form add');const p=formParts(form,slot,item.kind,item.text,{start:item.start,end:item.end});
+ p.submit.textContent='✓';p.submit.title='Enregistrer';
+ const cancel=el('button',null,'Annuler');cancel.type='button';cancel.className='btn small';
+ cancel.addEventListener('click',()=>renderSlots());form.append(cancel);
+ form.addEventListener('submit',e=>{
+  e.preventDefault();const value=p.input.value.trim();if(!value)return;
+  const nextKind=p.select.value;
+  if(nextKind==='event'&&!validateEvent(slot,p.a.value,p.b.value)){alert('Les horaires doivent rester dans le créneau.');return}
+  if(item.kind!==nextKind)removeRemoteLink(item);
+  item.text=value;item.kind=nextKind;if(nextKind==='event'){item.start=p.a.value;item.end=p.b.value}else{delete item.start;delete item.end}
+  if(nextKind!=='task')item.done=false;
+  save();renderSlots();updateStatus();toast('Activité modifiée');
+ });
+ row.replaceChildren(form);p.input.focus();
+}
+function renderSlots(){const parent=$('timeline');parent.replaceChildren();const day=getDay();
+ for(const s of slots()){
+  const row=el('section','slot');const clock=el('div','clock');clock.append(el('div','hours',s.start+' – '+s.end),el('div','duration',s.duration+' h'+(s.index===8?' · lendemain':'')));
+  row.append(clock);const c=el('div','slotContent');const head=el('div','slotHead');head.append(el('span','cat '+s.cat,LABELS[s.cat]));c.append(head);
+  if(s.fixed)c.append(el('div','fixed-label',s.fixed));
+  if(s.editable){const list=day.tasks?.[s.index]||[];if(list.length){const ul=el('ul','task-list');list.forEach((item,index)=>ul.append(rowFor(item,index,s)));c.append(ul)}
+   c.append(addForm(s));if(s.cat==='joy'&&!list.length)c.append(el('p','help','Ce créneau peut rester entièrement libre.'));
+  }
+  row.append(c);parent.append(row);
+ }
+}
+function render(){const day=getDay();$('dateTitle').textContent=pretty(selected);$('datePicker').value=selected;$('offCheckbox').checked=offDay();
+ $('dayContext').textContent=offDay()?'Journée de repos : le créneau 10 h – 14 h est consacré au plaisir.':'Journée ordinaire : les créneaux fixes sont déjà installés.';
+ $('priority').value=day.priority||'';$('desire').value=day.desire||'';metrics();renderSlots();updateStatus();renderWeek();
+}
+function dayShift(n){const date=parseDay(selected);date.setDate(date.getDate()+n);selected=localISO(date);render()}
+function toast(msg){const target=$('toast');target.textContent=msg;target.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>target.classList.remove('show'),2700)}
+function download(name,content,type){const blob=new Blob([content],{type});const href=URL.createObjectURL(blob),a=document.createElement('a');a.href=href;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(href),1400)}
+function backup(){download('3x8-sauvegarde-'+selected+'.json',JSON.stringify({version:2,exportedAt:new Date().toISOString(),days:data.days,sync:data.sync},null,2),'application/json;charset=utf-8')}
+function escapeICS(s){return String(s).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
+function stampDate(iso,time){return iso.replace(/-/g,'')+'T'+time.replace(':','')+'00'}
+function nextISO(iso){const d=parseDay(iso);d.setDate(d.getDate()+1);return localISO(d)}
+function makeICS(){const day=getDay();const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//3x8//FR','CALSCALE:GREGORIAN','X-WR-TIMEZONE:'+TIMEZONE];
+ for(const s of slots())for(const t of (day.tasks?.[s.index]||[]))if(t.kind==='event'&&validateEvent(s,t.start,t.end)){
+  lines.push('BEGIN:VEVENT','UID:'+t.id.replace(/-/g,'')+'@3x8.local','DTSTART;TZID='+TIMEZONE+':'+stampDate(selected,t.start),
+   'DTEND;TZID='+TIMEZONE+':'+stampDate(t.end==='00:00'?nextISO(selected):selected,t.end),
+   'SUMMARY:'+escapeICS(t.text),'DESCRIPTION:'+escapeICS('3 × 8 · '+LABELS[s.cat]),'END:VEVENT');
+ }
+ lines.push('END:VCALENDAR');download('3x8-agenda-'+selected+'.ics',lines.join('\r\n')+'\r\n','text/calendar;charset=utf-8');
+}
+// Google OAuth is requested by an actual click. Tokens are never written to localStorage.
+function googleStatus(label,cl){$('connectionLabel').textContent=label;$('syncLight').className='sync-light'+(cl?' '+cl:'');$('syncNow').disabled=!connected()||syncBusy;$('disconnectGoogle').disabled=!connected();
+ $('connectGoogle').textContent=connected()?'Reconnecter Google':'Connecter Google';
+}
+function connected(){return Boolean(accessToken)&&Date.now()<tokenExpires-15000}
+function setSyncMessage(msg,error=false){$('syncMessage').textContent=msg;$('syncMessage').classList.toggle('error',error)}
+function initGoogle(){
+ if(!config.clientId||!config.clientId.endsWith('.apps.googleusercontent.com'))throw Error('Renseignez un identifiant client OAuth Google valide.');
+ if(!isHttpsOrigin())throw Error('Pour connecter Google, hébergez la page en HTTPS ou ouvrez-la sur localhost. Le fichier téléchargé reste utilisable en mode local.');
+ if(!window.google?.accounts?.oauth2)throw Error('Le module de connexion Google n’a pas pu être chargé. Vérifiez la connexion Internet.');
+ oauthClient=window.google.accounts.oauth2.initTokenClient({
+  client_id:config.clientId,scope:SCOPES,
+  callback:async r=>{
+   if(r.error){setSyncMessage('Connexion refusée : '+(r.error_description||r.error),true);return}
+   accessToken=r.access_token;tokenExpires=Date.now()+(Number(r.expires_in)||3600)*1000;
+   // Re-select the Tasks list for the freshly authenticated account.
+   config.taskListId='';saveConfig();
+   googleStatus('Connecté','on');setSyncMessage('Connexion établie. '+(config.autoSync?'Synchronisation en cours…':'Activez la synchronisation automatique ou cliquez sur « Synchroniser ».'));
+   if(config.autoSync)await syncAll();
+  },
+  error_callback:e=>setSyncMessage('Connexion interrompue : '+(e.type||'fenêtre refusée'),true)
+ });
+}
+async function api(method,url,body,opts={}){
+ if(!connected()){accessToken='';googleStatus('Session expirée');throw Error('Session Google expirée : reconnectez-vous. Les modifications locales sont conservées.');}
+ const res=await fetch(url,{method,headers:{Authorization:'Bearer '+accessToken,...(body?{'Content-Type':'application/json'}:{})},body:body?JSON.stringify(body):undefined});
+ if(res.status===401){accessToken='';googleStatus('Session expirée');throw Error('Autorisation Google expirée. Reconnectez-vous.');}
+ if(res.status===204)return null;
+ const txt=await res.text();let parsed=null;try{parsed=txt?JSON.parse(txt):null}catch(e){parsed={message:txt}}
+ if(!res.ok){const reason=parsed?.error?.message||parsed?.message||'Erreur inconnue';const err=new Error('Google '+res.status+' : '+reason);err.status=res.status;throw err}
+ return parsed;
+}
+async function getTaskListId(){
+ if(config.taskListId)return config.taskListId;
+ let all=[],next='';do{
+  const path='https://tasks.googleapis.com/tasks/v1/users/@me/lists?maxResults=100'+(next?'&pageToken='+encodeURIComponent(next):'');
+  const result=await api('GET',path);all.push(...(result.items||[]));next=result.nextPageToken||'';
+ }while(next);
+ const existing=all.find(x=>x.title==='3 × 8 — À faire');
+ const list=existing||await api('POST','https://tasks.googleapis.com/tasks/v1/users/@me/lists',{title:'3 × 8 — À faire'});
+ config.taskListId=list.id;saveConfig();return list.id;
+}
+function calendarIdFor(item){return 'a3'+item.id.toLowerCase().replace(/[^0-9a-f]/g,'').padEnd(32,'0').slice(0,32)}
+function googleDateTime(day,time,isEnd=false){const date=isEnd&&time==='00:00'?nextISO(day):day;return {dateTime:`${date}T${time}:00`,timeZone:TIMEZONE}}
+function eventPayload(day,slot,item){return {
+ id:calendarIdFor(item),summary:item.text,
+ description:`Créé dans 3 × 8 · ${LABELS[slot.cat]} · Créneau ${slot.start}–${slot.end}.\nModification à privilégier dans 3 × 8.`,
+ start:googleDateTime(day,item.start),end:googleDateTime(day,item.end,true),
+ transparency:'opaque',reminders:{useDefault:true},
+ extendedProperties:{private:{source3x8:'oui',item3x8:item.id}}
+};}
+function taskPayload(day,slot,item){return {title:item.text,status:item.done?'completed':'needsAction',due:`${day}T12:00:00.000Z`,notes:`3 × 8 · ${LABELS[slot.cat]} · Créneau ${slot.start}–${slot.end}.\nModification à privilégier dans 3 × 8.`}}
+async function deleteLinked(item){
+ const link=item;
+ if(link.kind==='event')await api('DELETE','https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(link.remoteId));
+ else if(link.kind==='task')await api('DELETE','https://tasks.googleapis.com/tasks/v1/lists/'+encodeURIComponent(link.listId||config.taskListId)+'/tasks/'+encodeURIComponent(link.remoteId));
+}
+async function updateLinked(record,day,slot){
+ const link=data.sync.links[record.id];const payload=record.kind==='event'?eventPayload(day,slot,record):taskPayload(day,slot,record);
+ const hash=simpleHash(payload);if(link&&link.kind===record.kind&&link.hash===hash)return false;
+ if(record.kind==='event'){
+  const resource={...payload};const eventID=link?.remoteId||payload.id;
+  if(link&&link.kind==='event'){
+   delete resource.id;await api('PATCH','https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(eventID),resource);
+  }else{
+   try{await api('POST','https://www.googleapis.com/calendar/v3/calendars/primary/events',payload)}
+   catch(e){if(e.status!==409)throw e;delete resource.id;await api('PATCH','https://www.googleapis.com/calendar/v3/calendars/primary/events/'+encodeURIComponent(payload.id),resource)}
+  }
+  data.sync.links[record.id]={kind:'event',remoteId:payload.id,hash};writeLocal();return true;
+ }
+ const listID=await getTaskListId();let remote;
+ if(link&&link.kind==='task')remote=await api('PATCH','https://tasks.googleapis.com/tasks/v1/lists/'+encodeURIComponent(link.listId||listID)+'/tasks/'+encodeURIComponent(link.remoteId),payload);
+ else remote=await api('POST','https://tasks.googleapis.com/tasks/v1/lists/'+encodeURIComponent(listID)+'/tasks',payload);
+ data.sync.links[record.id]={kind:'task',remoteId:remote.id,listId:listID,hash};writeLocal();return true;
+}
+async function syncAll(){
+ if(syncBusy||!connected())return;
+ syncBusy=true;googleStatus('Synchronisation…','busy');let updated=0,deleted=0,failed=0;const errors=[];
+ $('syncNow').disabled=true;
+ try{
+  // Apply explicit deletion queue. A 404 means already removed remotely.
+  for(const link of [...data.sync.pendingDeletes]){
+   try{await deleteLinked(link);data.sync.pendingDeletes.splice(data.sync.pendingDeletes.indexOf(link),1);deleted++;writeLocal()}
+   catch(e){if(e.status===404){data.sync.pendingDeletes.splice(data.sync.pendingDeletes.indexOf(link),1);writeLocal()}
+    else{failed++;errors.push('Suppression : '+e.message)}}
+  }
+  const today=localISO(new Date());
+  const entries=Object.entries(data.days).sort(([a],[b])=>a.localeCompare(b));
+  for(const [dayISO,day] of entries){
+   for(const [index,list] of Object.entries(day.tasks||{})){
+    const ind=Number(index),sdef=START[ind];if(!sdef)continue;
+    const cat=(ind===3&&(day.off===true||(day.off!==false && parseDay(dayISO).getDay()===6)))?'joy':sdef[2];
+    const slot={index:ind,start:sdef[0],end:sdef[1],cat};
+    for(const item of list){
+     if(!['event','task'].includes(item.kind))continue;
+     if(dayISO<today&&!data.sync.links[item.id])continue; // No historical backfill.
+     if(item.kind==='event'&&!validateEvent(slot,item.start,item.end)){failed++;errors.push('Horaire incorrect : '+item.text);continue}
+     try{if(await updateLinked(item,dayISO,slot))updated++}
+     catch(e){failed++;errors.push(item.text+' : '+e.message);if(!connected())throw e}
+    }
+   }
+  }
+  setSyncMessage(`${updated} élément${updated>1?'s':''} ajouté${updated>1?'s':''} ou mis à jour · ${deleted} suppression${deleted>1?'s':''} · ${failed} erreur${failed>1?'s':''}.`+(failed?'\n'+errors.slice(0,3).join('\n'):'\nLes activités Libre et les blocs fixes restent dans 3 × 8.'),failed>0);
+  if(!failed)toast('Synchronisation Google terminée');
+ }catch(e){setSyncMessage(`Synchronisation interrompue. ${e.message}\nLes données locales restent conservées.`,true)}
+ finally{syncBusy=false;googleStatus(connected()?'Connecté':'Session expirée',connected()?'on':'');if(resyncNeeded&&config.autoSync&&connected()){resyncNeeded=false;clearTimeout(autoTimer);autoTimer=setTimeout(()=>syncAll(),350)}}
+}
+function scheduleAutoSync(){if(!config.autoSync||!connected())return;if(syncBusy){resyncNeeded=true;return}clearTimeout(autoTimer);autoTimer=setTimeout(()=>{syncAll()},1200)}
+function disconnect(){accessToken='';tokenExpires=0;googleStatus('Non connecté');setSyncMessage('Déconnecté : aucune activité n’est envoyée à Google. Les données locales sont conservées.');}
+// Main navigation and data handlers.
+$('prevBtn').addEventListener('click',()=>dayShift(-1));$('nextBtn').addEventListener('click',()=>dayShift(1));
+$('todayBtn').addEventListener('click',()=>{selected=localISO(new Date());render()});
+$('datePicker').addEventListener('change',e=>{if(/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)){selected=e.target.value;render()}});
+$('offCheckbox').addEventListener('change',e=>{getDay().off=e.target.checked;save();render()});
+for(const id of ['priority','desire'])$(id).addEventListener('input',e=>{getDay()[id]=e.target.value;save()});
+$('printBtn').addEventListener('click',()=>window.print());$('exportBtn').addEventListener('click',backup);$('backupBtn').addEventListener('click',backup);
+$('importBtn').addEventListener('click',()=>$('importFile').click());
+$('importFile').addEventListener('change',async e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ try{
+  if(file.size>8000000)throw Error('Fichier trop volumineux');const imported=JSON.parse(await file.text());
+  if(!imported.days||typeof imported.days!=='object'||Array.isArray(imported.days))throw Error('Sauvegarde incorrecte');
+  if(!confirm('La restauration remplacera toutes les données enregistrées ici. Continuer ?'))return;
+  // Importing the archived links is only safe for the same Google account.
+  data={days:imported.days,sync:{links:{},pendingDeletes:[]}};
+  for(const day of Object.values(data.days))for(const [index,list] of Object.entries(day.tasks||{}))for(const item of list){
+   if(!item.id)item.id=newId();if(!item.kind)item.kind=[1,3,6].includes(Number(index))?'task':'note';
+  }
+  // Preserve link ids only if user explicitly confirms (avoids writing to wrong account).
+  if(imported.sync?.links&&Object.keys(imported.sync.links).length&&confirm('Cette sauvegarde contient des liens Google. La restaurez-vous pour le MÊME compte Google ? (Annuler = liens réinitialisés ; les publications futures peuvent recréer les éléments)')){
+   data.sync={links:imported.sync.links,pendingDeletes:imported.sync.pendingDeletes||[]};
+  }
+  writeLocal();render();toast('Sauvegarde restaurée.');
+ }catch(err){alert('Restauration impossible : '+err.message)}finally{e.target.value=''}
+});
+$('icsBtn').addEventListener('click',makeICS);
+// Settings are local, never sent to the assistant or included in the file.
+$('clientId').value=config.clientId||'';$('autoSync').checked=!!config.autoSync;
+$('clientId').addEventListener('change',e=>{
+ const id=e.target.value.trim();if(config.clientId!==id){disconnect();config.taskListId=''}config.clientId=id;saveConfig();
+});
+$('autoSync').addEventListener('change',e=>{config.autoSync=e.target.checked;saveConfig();
+ if(config.autoSync&&connected())syncAll();else if(config.autoSync)setSyncMessage('Automatique activé. Connectez Google pour commencer.');
+ else setSyncMessage('Synchronisation automatique suspendue. Les activités restent locales.');
+});
+$('connectGoogle').addEventListener('click',()=>{
+ try{config.clientId=$('clientId').value.trim();saveConfig();initGoogle();oauthClient.requestAccessToken({prompt:'consent'})}
+ catch(e){setSyncMessage(e.message,true)}
+});
+$('syncNow').addEventListener('click',()=>syncAll());
+$('disconnectGoogle').addEventListener('click',disconnect);
+// A local file works offline. Only OAuth library is a remote dependency, lazily required at connection.
+const googleScript=document.createElement('script');googleScript.src='https://accounts.google.com/gsi/client';googleScript.async=true;googleScript.defer=true;document.head.append(googleScript);
+writeLocal();googleStatus('Non connecté');render();
+})();
+</script>
+</body>
+</html>
